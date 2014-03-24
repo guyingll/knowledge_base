@@ -1,0 +1,222 @@
+## find命令
+Linux下find命令在目录结构中搜索文件，并执行指定的操作。
+Linux下find命令提供了相当多的查找条件，功能很强大。
+由于find具有强大的功能，所以它的选项也很多，其中大部分选项都值得我们花时间来了解一下。
+即使系统中含有网络文件系统( NFS)，find命令在该文件系统中同样有效，只你具有相应的权限。
+在运行一个非常消耗资源的find命令时，很多人都倾向于把它放在后台执行，
+因为遍历一个大的文件系统可能会花费很长的时间(这里是指30G字节以上的文件系统)。
+
+1. 命令格式：
+
+        find pathname -options [-print -exec -ok ...]
+2. 命令功能：
+
+        用于在文件树中查找文件，并作出相应的处理
+3. 命令参数：
+
+        pathname: find命令所查找的目录路径。例如用.来表示当前目录，用/来表示系统根目录。
+        -print： find命令将匹配的文件输出到标准输出。
+        -exec： find命令对匹配的文件执行该参数所给出的shell命令。相应命令的形式为'command' {  } \;，注意{   }和\；之间的空格。
+        -ok： 和-exec的作用相同，只不过以一种更为安全的模式来执行该参数所给出的shell命令，在执行每一个命令之前，都会给出提示，
+              让用户来确定是否执行。
+4. 命令选项：
+
+        -name   按照文件名查找文件。
+        -perm   按照文件权限来查找文件。
+        -prune  使用这一选项可以使find命令不在当前指定的目录中查找，如果同时使用-depth选项，那么-prune将被find命令忽略。
+        -user   按照文件属主来查找文件。
+        -group  按照文件所属的组来查找文件。
+        -mtime -n +n  按照文件的更改时间来查找文件， - n表示文件更改时间距现在n天以内，+ n表示文件更改时间距现在n天以前。
+                        find命令还有-atime和-ctime 选项，但它们都和-m time选项。
+        -nogroup  查找无有效所属组的文件，即该文件所属的组在/etc/groups中不存在。
+        -nouser   查找无有效属主的文件，即该文件的属主在/etc/passwd中不存在。
+        -newer file1 ! file2  查找更改时间比文件file1新但比文件file2旧的文件。
+        -type  查找某一类型的文件，诸如：
+        b - 块设备文件。
+        d - 目录。
+        c - 字符设备文件。
+        p - 管道文件。
+        l - 符号链接文件。
+        f - 普通文件。
+        -size n：[c] 查找文件长度为n块的文件，带有c时表示文件长度以字节计。-depth：在查找文件时，首先查找当前目录中的文件，
+                然后再在其子目录中查找。
+        -fstype：查找位于某一类型文件系统中的文件，这些文件系统类型通常可以在配置文件/etc/fstab中找到，
+                该配置文件中包含了本系统中有关文件系统的信息。
+        -mount：在查找文件时不跨越文件系统mount点。
+        -follow：如果find命令遇到符号链接文件，就跟踪至链接所指向的文件。
+        -cpio：对匹配的文件使用cpio命令，将这些文件备份到磁带设备中。
+        另外,下面三个的区别:
+        -amin n   查找系统中最后N分钟访问的文件
+        -atime n  查找系统中最后n*24小时访问的文件
+        -cmin n   查找系统中最后N分钟被改变文件状态的文件
+        -ctime n  查找系统中最后n*24小时被改变文件状态的文件
+        -mmin n   查找系统中最后N分钟被改变文件数据的文件
+        -mtime n  查找系统中最后n*24小时被改变文件数据的文件
+5. 使用实例：
+
+* 实例1：查找指定时间内修改过的文件
+
+        命令：find -atime -2
+
+        说明：超找48小时内修改过的文件
+* 实例2：根据关键字查找
+
+        命令：find . -name "*.log"
+
+        说明：在当前目录查找 以.log结尾的文件。 ". "代表当前目录
+* 实例3：按照目录或文件的权限来查找文件
+
+        命令：find /opt/soft/test/ -perm 777
+
+        说明：查找/opt/soft/test/目录下 权限为 777的文件
+* 实例4：按类型查找
+
+        命令：find . -type f -name "*.log"
+
+        说明：查找当目录，以.log结尾的普通文件
+* 实例5：查找当前所有目录并排序
+
+        命令：find . -type d | sort
+* 实例6：按大小查找文件
+
+        命令：find . -size +1000c -print
+
+        说明：查找当前目录大于1K的文件
+
+## find命令之exec
+
+find是我们很常用的一个Linux命令，但是我们一般查找出来的并不仅仅是看看而已，还会有进一步的操作，这个时候exec的作用就显现出来了。
+exec解释：
+-exec  参数后面跟的是command命令，它的终止是以;为结束标志的，所以这句命令后面的分号是不可缺少的，考虑到各个系统中分号会有不同的意义，所以前面加反斜杠。
+{}   花括号代表前面find查找出来的文件名。
+使用find时，只要把想要的操作写在一个文件里，就可以用exec来配合find查找，很方便的。在有些操作系统中只允许-exec选项执行诸如l s或ls -l这样的命令。大多数用户使用这一选项是为了查找旧文件并删除它们。建议在真正执行rm命令删除文件之前，最好先用ls命令看一下，确认它们是所要删除的文件。 exec选项后面跟随着所要执行的命令或脚本，然后是一对儿{ }，一个空格和一个\，最后是一个分号。为了使用exec选项，必须要同时使用print选项。如果验证一下find命令，会发现该命令只输出从当前路径起的相对路径及文件名。
+实例1：ls -l命令放在find命令的-exec选项中
+命令：
+find . -type f -exec ls -l {} \;
+输出：
+[root@localhost test]# find . -type f -exec ls -l {} \;
+-rw-r--r-- 1 root root 127 10-28 16:51 ./log2014.log
+-rw-r--r-- 1 root root 0 10-28 14:47 ./test4/log3-2.log
+-rw-r--r-- 1 root root 0 10-28 14:47 ./test4/log3-3.log
+-rw-r--r-- 1 root root 0 10-28 14:47 ./test4/log3-1.log
+-rw-r--r-- 1 root root 33 10-28 16:54 ./log2013.log
+-rw-r--r-- 1 root root 302108 11-03 06:19 ./log2012.log
+-rw-r--r-- 1 root root 25 10-28 17:02 ./log.log
+-rw-r--r-- 1 root root 37 10-28 17:07 ./log.txt
+-rw-r--r-- 1 root root 0 10-28 14:47 ./test3/log3-2.log
+-rw-r--r-- 1 root root 0 10-28 14:47 ./test3/log3-3.log
+-rw-r--r-- 1 root root 0 10-28 14:47 ./test3/log3-1.log
+[root@localhost test]#
+说明：
+上面的例子中，find命令匹配到了当前目录下的所有普通文件，并在-exec选项中使用ls -l命令将它们列出。
+实例2：在目录中查找更改时间在n日以前的文件并删除它们
+命令：
+find . -type f -mtime +14 -exec rm {} \;
+输出：
+[root@localhost test]# ll
+总计 328
+-rw-r--r-- 1 root root 302108 11-03 06:19 log2012.log
+-rw-r--r-- 1 root root     33 10-28 16:54 log2013.log
+-rw-r--r-- 1 root root    127 10-28 16:51 log2014.log
+lrwxrwxrwx 1 root root      7 10-28 15:18 log_link.log -> log.log
+-rw-r--r-- 1 root root     25 10-28 17:02 log.log
+-rw-r--r-- 1 root root     37 10-28 17:07 log.txt
+drwxr-xr-x 6 root root   4096 10-27 01:58 scf
+drwxrwxrwx 2 root root   4096 10-28 14:47 test3
+drwxrwxrwx 2 root root   4096 10-28 14:47 test4
+[root@localhost test]# find . -type f -mtime +14 -exec rm {} \;
+[root@localhost test]# ll
+总计 312
+-rw-r--r-- 1 root root 302108 11-03 06:19 log2012.log
+lrwxrwxrwx 1 root root      7 10-28 15:18 log_link.log -> log.log
+drwxr-xr-x 6 root root   4096 10-27 01:58 scf
+drwxrwxrwx 2 root root   4096 11-12 19:32 test3
+drwxrwxrwx 2 root root   4096 11-12 19:32 test4
+[root@localhost test]#
+说明：
+在shell中用任何方式删除文件之前，应当先查看相应的文件，一定要小心！当使用诸如mv或rm命令时，可以使用-exec选项的安全模式。它将在对每个匹配到的文件进行操作之前提示你。
+实例3：在目录中查找更改时间在n日以前的文件并删除它们，在删除之前先给出提示
+命令：
+find . -name "*.log" -mtime +5 -ok rm {} \;
+输出：
+[root@localhost test]# ll
+总计 312
+-rw-r--r-- 1 root root 302108 11-03 06:19 log2012.log
+lrwxrwxrwx 1 root root      7 10-28 15:18 log_link.log -> log.log
+drwxr-xr-x 6 root root   4096 10-27 01:58 scf
+drwxrwxrwx 2 root root   4096 11-12 19:32 test3
+drwxrwxrwx 2 root root   4096 11-12 19:32 test4
+[root@localhost test]# find . -name "*.log" -mtime +5 -ok rm {} \;
+< rm ... ./log_link.log > ? y
+< rm ... ./log2012.log > ? n
+[root@localhost test]# ll
+总计 312
+-rw-r--r-- 1 root root 302108 11-03 06:19 log2012.log
+drwxr-xr-x 6 root root   4096 10-27 01:58 scf
+drwxrwxrwx 2 root root   4096 11-12 19:32 test3
+drwxrwxrwx 2 root root   4096 11-12 19:32 test4
+[root@localhost test]#
+说明：
+在上面的例子中， find命令在当前目录中查找所有文件名以.log结尾、更改时间在5日以上的文件，并删除它们，只不过在删除之前先给出提示。 按y键删除文件，按n键不删除。
+
+实例4：-exec中使用grep命令
+命令：
+find /etc -name "passwd*" -exec grep "root" {} \;
+输出：
+[root@localhost test]# find /etc -name "passwd*" -exec grep "root" {} \;
+root:x:0:0:root:/root:/bin/bash
+root:x:0:0:root:/root:/bin/bash
+[root@localhost test]#
+说明：
+任何形式的命令都可以在-exec选项中使用。  在上面的例子中我们使用grep命令。find命令首先匹配所有文件名为“ passwd*”的文件，例如passwd、passwd.old、passwd.bak，然后执行grep命令看看在这些文件中是否存在一个root用户。
+实例5：查找文件移动到指定目录
+命令：
+find . -name "*.log" -exec mv {} .. \;
+输出：
+[root@localhost test]# ll
+总计 12drwxr-xr-x 6 root root 4096 10-27 01:58 scf
+drwxrwxr-x 2 root root 4096 11-12 22:49 test3
+drwxrwxr-x 2 root root 4096 11-12 19:32 test4
+[root@localhost test]# cd test3/
+[root@localhost test3]# ll
+总计 304
+-rw-r--r-- 1 root root 302108 11-03 06:19 log2012.log
+-rw-r--r-- 1 root root     61 11-12 22:44 log2013.log
+-rw-r--r-- 1 root root      0 11-12 22:25 log2014.log
+[root@localhost test3]# find . -name "*.log" -exec mv {} .. \;
+[root@localhost test3]# ll
+总计 0[root@localhost test3]# cd ..
+[root@localhost test]# ll
+总计 316
+-rw-r--r-- 1 root root 302108 11-03 06:19 log2012.log
+-rw-r--r-- 1 root root     61 11-12 22:44 log2013.log
+-rw-r--r-- 1 root root      0 11-12 22:25 log2014.log
+drwxr-xr-x 6 root root   4096 10-27 01:58 scf
+drwxrwxr-x 2 root root   4096 11-12 22:50 test3
+drwxrwxr-x 2 root root   4096 11-12 19:32 test4
+[root@localhost test]#
+实例6：用exec选项执行cp命令
+命令：
+find . -name "*.log" -exec cp {} test3 \;
+输出：
+[root@localhost test3]# ll
+总计 0[root@localhost test3]# cd ..
+[root@localhost test]# ll
+总计 316
+-rw-r--r-- 1 root root 302108 11-03 06:19 log2012.log
+-rw-r--r-- 1 root root     61 11-12 22:44 log2013.log
+-rw-r--r-- 1 root root      0 11-12 22:25 log2014.log
+drwxr-xr-x 6 root root   4096 10-27 01:58 scf
+drwxrwxr-x 2 root root   4096 11-12 22:50 test3
+drwxrwxr-x 2 root root   4096 11-12 19:32 test4
+[root@localhost test]# find . -name "*.log" -exec cp {} test3 \;
+cp: “./test3/log2014.log” 及 “test3/log2014.log” 为同一文件
+cp: “./test3/log2013.log” 及 “test3/log2013.log” 为同一文件
+cp: “./test3/log2012.log” 及 “test3/log2012.log” 为同一文件
+[root@localhost test]# cd test3
+[root@localhost test3]# ll
+总计 304
+-rw-r--r-- 1 root root 302108 11-12 22:54 log2012.log
+-rw-r--r-- 1 root root     61 11-12 22:54 log2013.log
+-rw-r--r-- 1 root root      0 11-12 22:54 log2014.log
+[root@localhost test3]#

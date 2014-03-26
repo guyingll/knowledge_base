@@ -53,70 +53,69 @@ free命令可以显示Linux系统中空闲的、已用的物理内存及swap内�
         如本机情况的可用内存为：
         18007156=2098428KB+4545340KB+11363424KB
         接下来解释什么时候内存会被交换，以及按什么方交换。
-当可用内存少于额定值的时候，就会开会进行交换.如何看额定值：
-命令：
-cat /proc/meminfo
-输出：
-[root@SF1150 service]# cat /proc/meminfo
-MemTotal:     32940112 kB
-MemFree:       2096700 kB
-Buffers:       4545340 kB
-Cached:       11364056 kB
-SwapCached:    1896080 kB
-Active:       22739776 kB
-Inactive:      7427836 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:     32940112 kB
-LowFree:       2096700 kB
-SwapTotal:    32764556 kB
-SwapFree:     30819572 kB
-Dirty:             164 kB
-Writeback:           0 kB
-AnonPages:    14153592 kB
-Mapped:          20748 kB
-Slab:           590232 kB
-PageTables:      34200 kB
-NFS_Unstable:        0 kB
-Bounce:              0 kB
-CommitLimit:  49234612 kB
-Committed_AS: 23247544 kB
-VmallocTotal: 34359738367 kB
-VmallocUsed:    278840 kB
-VmallocChunk: 34359459371 kB
-HugePages_Total:     0HugePages_Free:      0HugePages_Rsvd:      0Hugepagesize:     2048 kB
-交换将通过三个途径来减少系统中使用的物理页面的个数：　
-1.减少缓冲与页面cache的大小，
-2.将系统V类型的内存页面交换出去，　
-3.换出或者丢弃页面。(Application 占用的内存页，也就是物理内存不足）。
-事实上，少量地使用swap是不是影响到系统性能的。
-那buffers和cached都是缓存，两者有什么区别呢？
-为了提高磁盘存取效率, Linux做了一些精心的设计, 除了对dentry进行缓存(用于VFS,加速文件路径名到inode的转换), 还采取了两种主要Cache方式：Buffer Cache和Page Cache。前者针对磁盘块的读写，后者针对文件inode的读写。这些Cache有效缩短了 I/O系统调用(比如read,write,getdents)的时间。
-磁盘的操作有逻辑级（文件系统）和物理级（磁盘块），这两种Cache就是分别缓存逻辑和物理级数据的。
-Page cache实际上是针对文件系统的，是文件的缓存，在文件层面上的数据会缓存到page cache。文件的逻辑层需要映射到实际的物理磁盘，这种映射关系由文件系统来完成。当page cache的数据需要刷新时，page cache中的数据交给buffer cache，因为Buffer Cache就是缓存磁盘块的。但是这种处理在2.6版本的内核之后就变的很简单了，没有真正意义上的cache操作。
-Buffer cache是针对磁盘块的缓存，也就是在没有文件系统的情况下，直接对磁盘进行操作的数据会缓存到buffer cache中，例如，文件系统的元数据都会缓存到buffer cache中。
-简单说来，page cache用来缓存文件数据，buffer cache用来缓存磁盘数据。在有文件系统的情况下，对文件操作，那么数据会缓存到page cache，如果直接采用dd等工具对磁盘进行读写，那么数据会缓存到buffer cache。
-所以我们看linux,只要不用swap的交换空间,就不用担心自己的内存太少.如果常常swap用很多,可能你就要考虑加物理内存了.这也是linux看内存是否够用的标准.
-如果是应用服务器的话，一般只看第二行，+buffers/cache,即对应用程序来说free的内存太少了，也是该考虑优化程序或加内存了。
+
+        当可用内存少于额定值的时候，就会开会进行交换.如何看额定值：
+        命令：
+        cat /proc/meminfo
+        输出：
+        [root@SF1150 service]# cat /proc/meminfo
+        MemTotal:     32940112 kB
+        MemFree:       2096700 kB
+        Buffers:       4545340 kB
+        Cached:       11364056 kB
+        SwapCached:    1896080 kB
+        Active:       22739776 kB
+        Inactive:      7427836 kB
+        HighTotal:           0 kB
+        HighFree:            0 kB
+        LowTotal:     32940112 kB
+        LowFree:       2096700 kB
+        SwapTotal:    32764556 kB
+        SwapFree:     30819572 kB
+        Dirty:             164 kB
+        Writeback:           0 kB
+        AnonPages:    14153592 kB
+        Mapped:          20748 kB
+        Slab:           590232 kB
+        PageTables:      34200 kB
+        NFS_Unstable:        0 kB
+        Bounce:              0 kB
+        CommitLimit:  49234612 kB
+        Committed_AS: 23247544 kB
+        VmallocTotal: 34359738367 kB
+        VmallocUsed:    278840 kB
+        VmallocChunk: 34359459371 kB
+        HugePages_Total:     0HugePages_Free:      0HugePages_Rsvd:      0Hugepagesize:     2048 kB
+
+        交换将通过三个途径来减少系统中使用的物理页面的个数：　
+            1.减少缓冲与页面cache的大小，
+            2.将系统V类型的内存页面交换出去，　
+            3.换出或者丢弃页面。(Application 占用的内存页，也就是物理内存不足）。
+
+        事实上，少量地使用swap是不是影响到系统性能的。
+
+        那buffers和cached都是缓存，两者有什么区别呢？
+        为了提高磁盘存取效率, Linux做了一些精心的设计, 除了对dentry进行缓存(用于VFS,加速文件路径名到inode的转换),
+        还采取了两种主要Cache方式：Buffer Cache和Page Cache。前者针对磁盘块的读写，后者针对文件inode的读写。
+        这些Cache有效缩短了 I/O系统调用(比如read,write,getdents)的时间。
+        磁盘的操作有逻辑级（文件系统）和物理级（磁盘块），这两种Cache就是分别缓存逻辑和物理级数据的。
+        Page cache实际上是针对文件系统的，是文件的缓存，在文件层面上的数据会缓存到page cache。文件的逻辑层需要映射到实际的物理磁盘，
+        这种映射关系由文件系统来完成。当page cache的数据需要刷新时，page cache中的数据交给buffer cache，因为Buffer Cache就是缓存磁盘块的。
+        但是这种处理在2.6版本的内核之后就变的很简单了，没有真正意义上的cache操作。
+        Buffer cache是针对磁盘块的缓存，也就是在没有文件系统的情况下，直接对磁盘进行操作的数据会缓存到buffer cache中，
+        例如，文件系统的元数据都会缓存到buffer cache中。
+
+        简单说来，page cache用来缓存文件数据，buffer cache用来缓存磁盘数据。在有文件系统的情况下，对文件操作，
+        那么数据会缓存到page cache，如果直接采用dd等工具对磁盘进行读写，那么数据会缓存到buffer cache。
+        所以我们看linux,只要不用swap的交换空间,就不用担心自己的内存太少.如果常常swap用很多,可能你就要考虑加物理内存了.
+        这也是linux看内存是否够用的标准.
+        如果是应用服务器的话，一般只看第二行，+buffers/cache,即对应用程序来说free的内存太少了，也是该考虑优化程序或加内存了。
+
 * 实例2：以总和的形式显示内存的使用信息
-命令：
- 	 free -t
-输出：
-[root@SF1150 service]#  free -t
-             total       used       free     shared    buffers     cached
-Mem:      32940112   30845024    2095088          0    4545340   11364324
--/+ buffers/cache:   14935360   18004752Swap:     32764556    1944984   30819572Total:    65704668   32790008   32914660[root@SF1150 service]#
-说明：
+
+        命令：free -t
+
 * 实例3：周期性的查询内存使用信息
-命令：
-free -s 10
-输出：
-[root@SF1150 service]#  free -s 10
-             total       used       free     shared    buffers     cached
-Mem:      32940112   30844528    2095584          0    4545340   11364380
--/+ buffers/cache:   14934808   18005304Swap:     32764556    1944984   30819572
-             total       used       free     shared    buffers     cached
-Mem:      32940112   30843932    2096180          0    4545340   11364388
--/+ buffers/cache:   14934204   18005908Swap:     32764556    1944984   30819572
-说明：
-每10s 执行一次命令
+
+        命令：free -s 10
+        说明：每10s 执行一次命令

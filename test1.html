@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>1</title>
+    <script>
+        void function(global){
+            var extend,
+                    _extend,
+                    _isObject;
+
+            _isObject = function(o){
+                return Object.prototype.toString.call(o) === '[object Object]';
+            }
+
+            _extend = function self(destination, source) {
+                var property;
+                for (property in destination) {
+                    if (destination.hasOwnProperty(property)) {
+
+                        // 若destination[property]和sourc[property]都是对象，则递归
+                        if (_isObject(destination[property]) && _isObject(source[property])) {
+                            self(destination[property], source[property]);
+                        };
+
+                        // 若sourc[property]已存在，则跳过
+                        if (source.hasOwnProperty(property)) {
+                            continue;
+                        } else {
+                            source[property] = destination[property];
+                        }
+                    }
+                }
+            }
+
+            extend = function(){
+                var arr = arguments,
+                        result = {},
+                        i;
+
+                if (!arr.length) return {};
+
+                for (i = arr.length - 1; i >= 0; i--) {
+                    if (_isObject(arr[i])) {
+                        _extend(arr[i], result);
+                    };
+                }
+
+                arr[0] = result;
+                return result;
+            }
+
+            global.extend = extend;
+        }(window)
+
+
+        function extend1(parent){
+            var parentPrototype, prototype;
+            parentPrototype = parent.prototype;
+            var Emputy=function(){};
+            Emputy.prototype=parentPrototype;
+            prototype = this.prototype =new Emputy();
+            prototype.self = this;
+            this.superclass = prototype.superclass = parentPrototype;
+        }
+
+
+        var Base=function(){
+            this.name="base";
+        }
+
+        Base.prototype.getName =function(){
+            return this.name
+        }
+
+
+        var Child=function(){
+            this.name="1";
+        }
+
+        Child.prototype.getCry =function(){
+            return this.name
+        }
+
+//        extend1.call(Child,Base);
+
+        function inherit(p) {
+            if (p == null) throw TypeError();
+            if (Object.create)
+                return Object.create(p);
+            var t = typeof p;
+            if (t !== "object" && t !== "function")
+                throw TypeError();
+            function f() {};
+            f.prototype = p;
+            return new f();
+        }
+
+        var child1=new Child();
+        Child.prototype.te =function(){
+              return "test"
+        }
+        var Child2=function(){
+            this.name = "test1";
+            this.save=function(){
+                return this.name;
+            }
+        }
+        var base=new Base();
+//        extend(child1,base);
+
+        var child2=new Child();
+
+//        var child3=inherit(child1);
+
+    </script>
+
+</head>
+<body>
+</body>
+</html>

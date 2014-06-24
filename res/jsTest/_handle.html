@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>test</title>
+<script type="text/javascript">
+var Dog=function (){
+  this.name="qihaisong";
+}
+
+var People=function (){
+  this.name="qihaisongNum2";
+}
+
+function _handle(object, key) {
+    return function () {
+        return object[key].apply(object, Array.prototype.slice.call(arguments));
+    };
+}
+
+Dog.prototype.eat=function(x,y){
+   var food="meet";
+   console.log(this.name+"在"+x+y+"吃"+food);
+}
+
+
+var qihaisong=new Dog();
+
+var c =_handle(qihaisong, "eat");
+
+
+
+c("内蒙","赤峰");
+qihaisong.eat("内蒙","赤峰");
+
+var name ="qisan";
+
+function test(callback){
+	var name ="qisan1"
+	callback("内蒙","赤峰");
+}
+
+test(qihaisong.eat);
+
+test(c);
+
+var MYAPP=MYAPP||{};
+MYAPP.namespace=function(params){
+	var parts,parent=MYAPP;
+	parts=params.split(".");
+	if(parts[0]==="MYAPP")
+		parts=parts.slice(1);
+	for (var i = 0,length=parts.length - 1; length>=i; i++) {
+		if(typeof parent[parts[i]] === "undefined" )
+			parent[parts[i]]={};
+		parent=parent[parts[i]];
+	}	
+}
+
+
+MYAPP.namespace("MYAPP.add.test");
+console.log(MYAPP)
+</script>
+</head>
+
+<body>
+</body>
+</html>

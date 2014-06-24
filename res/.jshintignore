@@ -1,0 +1,6 @@
+web/resources/cc/**/unittest/lib
+web/resources/fc/**/unittest/lib
+web/resources/libs
+web/stm/lib
+workbench/customcontrol/**/unittest/lib
+workbench/functioncontrol/**/unittest/lib

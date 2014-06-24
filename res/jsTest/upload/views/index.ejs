@@ -1,0 +1,14 @@
+<%- include header %>
+<p><h2>welcome to upload</h2></p>
+
+<% if(urls.length>0) { %>
+    <% for(var i in urls){ %>
+<p style="font-weight: bold"><mark><%=parseInt(i)+1 %>.</mark><%= urls[i] %></p>
+        <img src="http://localhost:3000/images/<%= urls[i] %>"></img>
+        <p>引用地址</p>
+        <p>http://localhost:3000/images/<%= urls[i] %></p>
+        </p>
+        <br/><br/><br/>
+    <% } %>
+<% } %>
+<%- include footer %>

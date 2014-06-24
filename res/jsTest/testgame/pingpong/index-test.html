@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>pingpong</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js" type="text/javascript"></script>
+		<style>
+			#playround {
+				background: #e0ffe0 url(http://new-space.b0.upaiyun.com/pixel_grid.jpg);
+				width: 400px;
+				height: 200px;
+				position: relative;
+				overflow: hidden;
+			}
+
+			#ball {
+				background: #fbb;
+				position: absolute;
+				width: 20px;
+				height: 20px;
+				left: 150px;
+				top: 100px;
+				border-radius: 10px;
+			}
+
+			.paddle {
+				background: #bbf;
+				left: 50px;
+				top: 70px;
+				position: absolute;
+				width: 30px;
+				height: 70px;
+			}
+
+			#paddleB {
+				left: 320px;
+			}
+		</style>
+
+		<script type="text/javascript">
+			var KEY = {
+				UP : 38,
+				DOWN : 40,
+				W : 87,
+				S : 83
+			}
+
+			$(function() {
+				$(document).keydown(function(e) {
+					switch(e.which) {
+						case KEY.UP:
+							var top = parseInt($("#paddleB").css("top"));
+							$("#paddleB").css("top", top - 5);
+							break;
+						case KEY.DOWN:
+							var top = parseInt($("#paddleB").css("top"));
+							$("#paddleB").css("top", top + 5);
+							break;
+						case KEY.W:
+							var top = parseInt($("#paddleA").css("top"));
+							$("#paddleA").css("top", top - 5);
+							break;
+						case KEY.S:
+							var top = parseInt($("#paddleA").css("top"));
+							$("#paddleA").css("top", top + 5);
+							break;
+					}
+				});
+			});
+
+		</script>
+
+	</head>
+	<body>
+		<header>
+			<h1>pingpong</h1>
+		</header>
+
+		<div id="game">
+			<div id="playround">
+				<div id="paddleA" class="paddle"></div>
+				<div id="paddleB" class="paddle"></div>
+				<div id="ball"></div>
+			</div>
+		</div>
+
+		<footer>
+			This is an example of creating a ping pong game
+		</footer>
+	</body>
+</html>

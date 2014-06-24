@@ -1,0 +1,17 @@
+vim /etc/hosts 
+
+
+add 
+	
+	172.26.176.70 vsvn
+	
+/etc/init.d/networking restart
+
+
+jboss修改端口
+JBOSS_HOME\server\default\deploy\jbossweb-tomcat50.sar\server.xml
+
+
+修改权限
+chmod -R 777 /opt/cms
+chmod -R 777 /var/lib/jboss-4.0.5.GA/server/default/deploy

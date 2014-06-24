@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<project name="MyTest" default=""> 
+	<delete dir="./build" />  
+	<mkdir dir="./build"/>
+	<copy todir="./build">
+		<fileset dir="./web">
+		</fileset>
+	</copy>
+ </project> 

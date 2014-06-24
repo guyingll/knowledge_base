@@ -1,0 +1,96 @@
+<%- include header %>
+<% if(flag) { %>
+<% for(var i in urls){ %>
+
+<p>
+<p style="font-weight: bold">
+    <mark><%= parseInt(i) + 1 %>.</mark><%= urls[i] %></p>
+<img src="http://localhost:3000/images/<%= urls[i] %>"></img>
+<p>引用地址</p>
+<p>http://localhost:3000/images/<%= urls[i] %></p>
+</p>
+<br/><br/><br/>
+<% } %>
+<% }else{ %>
+
+<form id="form1" method='post' action='/upload' enctype='multipart/form-data'>
+    <input class="file" type="file" name='file1'/><br>
+    <input class="file" type="file" name='file2'/><br>
+    <input class="file" type="file" name='file3'/><br>
+    <input class="file" type="file" name='file4'/><br>
+    <input class="file" type="file" name='file5'/><br>
+    <!--<input class="fileButton"  id='file_upload' type="button" value="upload"/>-->
+    <input id='file_upload' type="submit" value="commit"/>
+</form>
+
+<header>
+    <h2>Clipboard paste test</h2>
+</header>
+
+<fieldset>
+    <span id="attachments_fields"></span>
+    <span class="add_attachment">Add file</span>
+</fieldset>
+
+<span id="cbp_images_form">
+  <span id="cbp_image_fields"></span>
+  <span class="add_attachment"><a href="#" onclick="cbImagePaste.showPasteDialog(); return false;">Add picture</a>
+  </span>
+</span>
+
+
+    <!-- input field span inspired by redmine/app/views/attachments/_form.html.erb -->
+<span id="cbp_image_field" style="display:none">
+  <span id="cbp_attach_thumbnail_box">
+    <img id="cbp_attach_thumbnail"/>
+  </span>
+  <input type="hidden" name="attachments[nnnnn][data]" id="cbp_image_data"/>
+  <input type="text" name="attachments[nnnnn][name]" class="name" maxlength=50/>
+  <a id="cbp_link_btn" href="#" title="Copy image and thumbnail link">link</a>
+  <input type="text" name="attachments[nnnnn][description]" class="description" maxlength=255/>
+</span>
+
+    <!-- clipboard paste dialog -->
+    <div id="cbp_paste_dlg" title="Clipboard image paste" style="display:none">
+        <script type="text/javascript">
+            // translated labels go here (inside namespace)
+            (function (cbImagePaste,$,undefined) {
+                cbImagePaste.cbp_txt_crop_box = "crop box:  x={1}  y={2}  width={3}  height={4}";
+                cbImagePaste.cbp_txt_print = "Use PrintScreen key and then Ctrl+V.";
+                cbImagePaste.cbp_txt_select = "Use mouse to select specific part of the image.";
+                cbImagePaste.cbp_txt_deselect = "Click outside selection to deselect.";
+                cbImagePaste.cbp_txt_empty_cb = "The clipboard is empty.";
+                cbImagePaste.cbp_txt_no_image_cb = "No image found in the clipboard.";
+                cbImagePaste.cbp_txt_no_image_pst = "No image has been pasted.";
+                cbImagePaste.cbp_txt_too_many_files = "Number of attachments files is limited.";
+                cbImagePaste.cbp_txt_wrong_browser = "Your current browser cannot paste pictures. Please use Mozilla Firefox or Google Chrome.";
+                cbImagePaste.cbp_txt_btn_ok = "Ok";
+                cbImagePaste.cbp_txt_btn_cancel = "Cancel";
+                cbImagePaste.cbp_txt_too_big_image = "Image is too big for upload.";
+                cbImagePaste.cbp_max_attach_size = 1000000;
+                cbImagePaste.cbp_max_attachments = 10;
+                cbImagePaste.cbp_min_chrome_ver = 535;
+                cbImagePaste.cbp_min_firefox_ver = 3;
+                cbImagePaste.cbp_act_update_id = "0";
+            }(window.cbImagePaste = window.cbImagePaste || {},j$cbp));
+        </script>
+
+        <div id="cbp_header_box">
+            <!-- canvas id="cbp_thumbnail" width="60" height="60"></canvas -->
+            <div id="cbp_instructions">&nbsp;</div>
+        </div>
+        <div id="cbp_panel_box">
+            <!-- place for pasted image editor -->
+        </div>
+    </div>
+
+    <!-- dialog to copy image link for wiki -->
+    <div id="cbp_link_dlg" title="Copy image and thumbnail link" style="display:none">
+        <input type="text" id="cbp_image_link" readonly/>
+
+        <p/>
+        <input type="text" id="cbp_thumbnail_link" readonly/>
+    </div>
+
+    <% } %>
+<%- include footer %>

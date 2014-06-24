@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+        :checked{
+            margin: 10px;
+        }
+    </style>
+    <script type="text/javascript">
+	    function object(o){
+	    	function F(){};
+	    	F.prototype=o;
+	    	return new F();
+	    }
+
+	    var person={
+	    	name:"A",
+	    	friends:['Shelby','Court','Van']
+	    }
+	    person.say=function(){
+	    	console.log(this.name)
+	    }
+
+	    var anotherPerson=object(person);
+	    anotherPerson.name="B";
+	    anotherPerson.friends.push('Bob');
+
+	    var yetOtherPerson=object(anotherPerson);
+	    yetOtherPerson.name="c";
+	    yetOtherPerson.friends.push('Barbie');
+	    console.log(person.friends);
+
+		var yetOtherPerson1=Object.create(person);
+
+	    function A(){
+	    	this.name="A";
+	    	this.color=['red','yellow']
+	    }
+
+	    A.prototype.say=function(){
+	    	return this.name
+	    }
+
+	    function B(){
+	    	A.call(this);
+	    }
+
+	    // B.prototype=new A();
+	    B.prototype=A.prototype;
+	    B.prototype.constructor=B;
+
+	    var b1=new B();
+	    b1.color.push('black');
+	    var b2=new B();
+
+	    function C(){
+	    	A.call(this);
+	    }
+
+	    var prototype=object(A.prototype);
+	    prototype.constructor=C;
+	    C.prototype=prototype;
+	    
+	    var c=new C();
+	    c.color.push('black');
+	    var c1=new C();
+
+	    function loadScriptString(code){
+	    	var script=document.createElement("script");
+	    	script.type="text/javascript";
+	    	try{
+	    		script.appendChild(document.createTextNode(code));
+	    	}catch(ex){
+	    		script.text=code;
+	    	}
+	    	document.body.appendChild(script);
+	    }
+
+	    function loadStylesString(css){
+	        var style=document.createElement("style");
+	        style.type="text/css";
+	        try{
+	            style.appendChild(document.createTextNode(css));
+	        }catch(ex){
+	        	style.styleSheet.cssText=css;
+	        }
+	        var head=document.getElementsByTagName('head')[0];
+	        head.appendChild(style);
+	    }
+	    console.log(document.readyState)
+
+	    function getdocState(){
+	    	return document.readyState
+	    }
+
+     	function getViewport(){
+	        if(document.compatMode== "BackCompat"){
+	            return{
+	              width:document.body.clientWidth,
+	              height:document.body.clientHeight  
+	            }
+	        }else{
+	        	return{
+	        		width:document.documentElement.clientWidth,
+	        		height:document.documentElement.clientHeight
+	        	}
+	        }
+	    }
+
+	    function scrollToTop(element){
+	    	if(element.scrollTop!=0){
+	    		element.scrollTop=0;
+	    	}
+	    }
+
+	    function getBoundingClientRect(element){
+	        var scrollTop=document.documentElement.scrollTop;
+	        var scrollLeft=document.documentElement.scrollLeft;
+	        if(element.getBoundingClientRect){
+	            if(typeof arguments.callee.offset !="number"){
+	                var temp=document.createElement("div");
+	                temp.style.cssText="position:absolute;left:0;top:0;";
+	                document.body.appendChild(temp);
+	                arguments.callee.offset=-temp.getBoundingClientRect().top-scrollTop;
+	                document.body.removeChild(temp);
+	                temp=null;
+	            }
+
+	            var rect=element.getBoundingClientRect();
+	            var offset=arguments.callee.offset;
+
+
+	            return {
+	                left:rect.left+offset,
+	                right:rect.right+offset,
+	                top:rect.top+offset,
+	                bottom:rect.bottom+offset
+
+	            };
+	        }else{
+	            var actualLeft=getElementLeft(element);
+	            var actualTop=getElementTop(element);
+	            return {
+	                left:actualLeft-scrollLeft,
+	                right:actualLeft+element.offsetWidth-scrollLeft,
+	                top:actualTop-scrollTop,
+	                bottom:actualTop+element.offsetHight-scrollTop
+	            }
+
+	        }
+	    }
+
+    </script>
+</head>
+<body>
+<div id="t0" style="text-align:center;margin-left:100px;border:1px solid #e4e4e4;">
+    <input id="t1" type="checkbox" style="background-color:red;border:1px solid #e4e4e4;" class="cc cc2 cc3" checked/>
+    <input id="t3" type="radio" checked/>
+    <select>
+        <option id="t2">test</option>
+        <option id="t4">test2</option>
+    </select>
+    </div>
+    <script type="text/javascript">console.log(document.readyState)</script>
+</body>
+</html>

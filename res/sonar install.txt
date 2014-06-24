@@ -1,0 +1,199 @@
+jenkins install 
+
+1. get the deb pack   http://pkg.jenkins-ci.org/debian/
+
+2. click to install
+
+ps: 1. the path to jenkins dir is /var/lib/jenkins
+
+	2. change the port 
+
+	    vim /etc/default/jenkins
+
+		  change the HTTP_PORT to your wants port
+
+		vim /etc/init.d/jenkins
+
+		  change l02 line 
+		      check_tcp_port "http" "$HTTP_PORT" "8080" || return 1
+		      change the 8080 port to yours
+
+	3. add --prefix=$PREFIX to JENKINS_ARGS to add path
+
+		after add JENKINS_ARGS like this 
+
+			JENKINS_ARGS="--prefix=$PREFIX --webroot=/var/cache/jenkins/war --httpPort=$HTTP_PORT --ajp13 Port=$AJP_PORT"
+
+		use http://localhost:PORT/jenkins to visit 
+
+	4. nginx proxy
+
+		location /jenkins {  
+	        proxy_pass http://172.26.176.167:8080/jenkins;
+		  	proxy_redirect  off;
+	        proxy_set_header Host $host;
+	        proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	    }
+
+
+
+sonar install		
+
+1. get the pack sonarqube-4.3.zip   http://www.sonarqube.org/downloads/
+
+2. sudo unzip sonarqube-4.3.zip /var/lib/sonar
+
+3. instll postgresql
+     sudo apt-get install postgresql
+
+   ① use PostgreSQL Console
+     sudo su - postgres
+     psql
+
+   now you can use commond \password set a password for postgres
+
+     \password postgres
+
+   create a dbuser e.g. sonar
+
+      CREATE USER sonar WITH PASSWORD 'password';
+
+   create a db for dbuser e.g. sonar
+
+      CREATE DATABASE sonar OWNER sonar;
+
+   give the db's right to dbuser
+
+      GRANT ALL PRIVILEGES ON DATABASE sonar to sonar;
+
+
+   ② user commond
+
+   create dbuser
+
+     sudo -u postgres createuser sonar
+     sudo -u postgres psql
+     \password sonar
+     \q
+
+     or
+     sudo -u postgres createuser -W sonar 
+
+   create db
+     sudo -u postgres createdb -O dbuser exampledb
+
+
+   login db
+
+      psql -U dbuser -d exampledb -h 127.0.0.1 -p 5432
+
+    上面命令的参数含义如下：-U指定用户，-d指定数据库，-h指定服务器，-p指定端口。
+	输入上面命令以后，系统会提示输入dbuser用户的密码。输入正确，就可以登录控制台了。
+	psql命令存在简写形式。如果当前Linux系统用户，同时也是PostgreSQL用户，则可以省略用户名（-U参数的部分）。举例来说，我的 Linux系统用户名为ruanyf，且PostgreSQL数据库存在同名用户，则我以ruanyf身份登录Linux系统后，可以直接使用下面的命令 登录数据库，且不需要密码。
+	psql exampledb
+	此时，如果PostgreSQL内部还存在与当前系统用户同名的数据库，则连数据库名都可以省略。比如，假定存在一个叫做ruanyf的数据库，则直接键入psql就可以登录该数据库。
+	psql
+	另外，如果要恢复外部数据，可以使用下面的命令。
+	psql exampledb < exampledb.sql
+
+
+	控制台命令
+   除了前面已经用到的\password命令（设置密码）和\q命令（退出）以外，控制台还提供一系列其他命令。
+	\h：查看SQL命令的解释，比如\h select。
+	\?：查看psql命令列表。\l：列出所有数据库。
+	\c [database_name]：连接其他数据库。
+	\d：列出当前数据库的所有表格。
+	\d [table_name]：列出某一张表格的结构。
+	\du：列出所有用户。
+	\e：打开文本编辑器。
+	\conninfo：列出当前数据库和连接的信息。
+
+
+	数据库操作
+	基本的数据库操作，就是使用一般的SQL语言。
+	# 创建新表
+	CREATE TABLE usertbl(name VARCHAR(20), signupdate DATE);
+	# 插入数据
+	INSERT INTO usertbl(name, signupdate) VALUES('张三', '2013-12-22');
+	# 选择记录
+	SELECT * FROM user_tbl;
+	# 更新数据
+	UPDATE user_tbl set name = '李四' WHERE name = '张三';
+	# 删除记录
+	DELETE FROM user_tbl WHERE name = '李四' ;
+	# 添加栏位
+	ALTER TABLE user_tbl ADD email VARCHAR(40);
+	# 更新结构
+	ALTER TABLE usertbl ALTER COLUMN signupdate SET NOT NULL;
+	# 更名栏位
+	ALTER TABLE usertbl RENAME COLUMN signupdate TO signup;
+	# 删除栏位
+	ALTER TABLE user_tbl DROP COLUMN email;
+	# 表格更名 
+	ALTER TABLE usertbl RENAME TO backuptbl;
+	# 删除表格
+	DROP TABLE IF EXISTS backup_tbl;
+
+
+	PS 外部链接到里面
+	1.postgresql.conf
+
+	将该文件中的listen_addresses项值设定为“*”。
+
+	2.pg_hba.conf
+
+	在该配置文件的host all all 127.0.0.1/32 md5行下添加以下配置，或者直接将这一行修改为以下配置
+
+	host    all    all    0.0.0.0/0    md5
+
+	如果不希望允许所有IP远程访问，则可以将上述配置项中的0.0.0.0设定为特定的IP值。
+
+4. ln -s /var/lib/sonar/bin/linux-x86-64/sonar.sh /etc/init.d/sonar
+
+    sudo update-rc.d sonar defaults
+
+5. add context
+
+    vim /var/lib/sonar/conf/sonar.properties 
+
+    change #sonar.web.context=..   to sonar.web.context=sonar
+
+
+
+6. change port
+
+	vim /var/lib/sonar/conf/sonar.properties 
+
+	change #sonar.web.port=9000   to sonar.web.port=your port
+    
+    now use http://localhost:PORT/sonar to visit 
+
+7. nginx proxy
+
+ 	vim /etc/nginx/site-enabled/default
+
+ 	add
+
+ 		location /sonar {  
+	        proxy_pass http://172.26.176.167:9000/sonar;
+		  	proxy_redirect  off;
+	        proxy_set_header Host $host;
+	        proxy_set_header X-Real-IP $remote_addr;
+			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	    }
+
+8. apt-get install ant
+
+sudo -u jenkins mkdir -pv svn/ns_test/trunk/src/DopCyberNavi/lib
+sudo -u jenkins mkdir -pv svn/ns_test/trunk/src/navi04cyber/lib
+sudo -u jenkins mkdir -pv svn/ns_test/trunk/src/RakuNavi/lib
+
+
+
+
+
+
+重复使用最后一个使用的命令，只要使用两个感叹号就能快速执行之。
+!!    
+ctrl+r 查找 

@@ -14,6 +14,7 @@
             delete obj._temFunction;
             return rv;
         }
+
         Function.prototype.Call = function() {
             return this.Apply(Array.prototype.shift.Apply(arguments), arguments);
         }
